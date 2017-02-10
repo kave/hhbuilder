@@ -1,56 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Household builder</title>
-        <style>
-            .debug {
-                font-family: monospace;
-                border: 1px solid black;
-                padding: 10px;
-                display: none;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Household builder</h1>
-        <div class="builder">
-            <ol class="household"></ol>
-            <form>
-                <div>
-                    <label>Age
-                        <input type="text" name="age">
-                    </label>
-                </div>
-                <div>
-                    <label>Relationship
-                        <select name="rel">
-                            <option value="">---</option>
-                            <option value="self">Self</option>
-                            <option value="spouse">Spouse</option>
-                            <option value="child">Child</option>
-                            <option value="parent">Parent</option>
-                            <option value="grandparent">Grandparent</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </label>
-                </div>
-                <div>
-                    <label>Smoker?
-                        <input type="checkbox" name="smoker">
-                    </label>
-                </div>
-                <div>
-                    <button class="add">add</button>
-                </div>
-                <div>
-                    <button type="submit">submit</button>
-                </div>
-            </form>
-        </div>
-        <pre class="debug"></pre>
-        <script>
-            // your code goes here ...
-        </script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Household builder</title>
+    <style>
+    .debug {
+        font-family: monospace;
+        border: 1px solid black;
+        padding: 10px;
+        display: none;
+    }
+    </style>
+</head>
+<body>
+    <h1>Household builder</h1>
+    <div class="builder">
+        <ol class="household"></ol>
+        <form>
+            <div>
+                <label>Age
+                    <input type="text" name="age">
+                </label>
+            </div>
+            <div>
+                <label>Relationship
+                    <select name="rel">
+                        <option value="">---</option>
+                        <option value="self">Self</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="child">Child</option>
+                        <option value="parent">Parent</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="other">Other</option>
+                    </select>
+                </label>
+            </div>
+            <div>
+                <label>Smoker?
+                    <input type="checkbox" name="smoker">
+                </label>
+            </div>
+            <div>
+                <button class="add">add</button>
+            </div>
+            <div>
+                <button type="submit">submit</button>
+            </div>
+        </form>
+    </div>
+    <pre class="debug"></pre>
+    <script>
+    var household = [];
+
+    // Helper Functions
+    Element.prototype.remove = function() {
+        this.parentElement.removeChild(this);
+    }
+
+    function clearAll(){
+        var form = document.getElementsByTagName('form')[0];
+        form.elements['age'].value = "";
+        form.elements['smoker'].checked = false;
+        form.elements['rel'].selectedIndex = 0;
+    }
+
+    function memberHTMLRow(member){
+        return "<li> Age: " + member["age"] + " , Relationship: " 
+        + member["relationship"] + " , Smokes: " + member["smokes"];
+    }
+
+    function showCurrentMembers(){
+        household_list = document.getElementsByClassName('household')[0];
+        household_list.innerHTML = "";
+        household.forEach(function(member) {
+            household_list.innerHTML += memberHTMLRow(member);
+        });
+    }
+
+    //----------------------------------------------------------------//
+
+    // Submitting added members data logic
+    function serializeData(e) {
+        if (e.preventDefault) e.preventDefault();
+
+        data = JSON.stringify(household);
+        debug = document.getElementsByClassName('debug')[0];
+        debug.innerHTML = ""; //clears it
+        debug.innerHTML = data;
+        debug.style.display = "block"
+
+        // You must return false to prevent the default form behavior
+        return false;
+    }
+
+    var form = document.getElementsByTagName('form')[0];
+    if (form.attachEvent) {
+        form.attachEvent("submit", serializeData);
+    } else {
+        form.addEventListener("submit", serializeData);
+    }
+
+    
+
+    // Remove last added member logic
+    function removeAddedMember(e){
+        if (e.preventDefault) e.preventDefault();
+        household.pop();
+        showCurrentMembers();
+        if (household.length == 0){
+            document.getElementById("removeMember").remove();
+        }
+    }
+
+    function addRemoveMemberBtn(){
+        btn = document.createElement('button');
+        btn.addEventListener("click", removeAddedMember);
+        btn.innerHTML = "Remove Added Member";
+        btn.id = "removeMember"
+
+        body = document.getElementsByClassName('builder')[0]; 
+        body.appendChild(btn);
+    }
+
+    // Add Member Logic
+    function addMember(age, relationship, smokes){
+        new_member = {
+            age: age,
+            relationship: relationship,
+            smokes: smokes
+        }
+        household.push(new_member);
+        showCurrentMembers();
+    }
+
+    function validateMemberForm(e) {
+        if (e.preventDefault) e.preventDefault();
+
+        var form = document.getElementsByTagName('form')[0];
+        var age = form.elements['age'].value;
+        var smokes = form.elements['smoker'].checked;
+        var relationship = form.elements['rel'];
+
+        if (age == ""){
+            alert("Age field is required.");
+            return false
+        }
+
+        if (parseInt(age) != age){
+            alert("Please make sure use an integer for age.");
+            return false
+        }
+
+        if (parseInt(age) <= 0) {
+            alert("Age field needs to be > 0");
+            return false;
+        }
+
+        if (relationship.selectedIndex == 0) {
+            alert("relationship field is required");
+            return false;
+        }
+        else{
+            relationship = relationship.value
+        }
+
+        addMember(age,relationship,smokes)
+        // Adds option to remove member
+        if (household.length <= 1)
+            addRemoveMemberBtn();
+
+        // Refresh Form
+        clearAll();
+
+        // You must return false to prevent the default form behavior
+        return false;
+    }
+
+    var addBtn = document.getElementsByClassName('add')[0];
+    if (addBtn.attachEvent) {
+        addBtn.attachEvent("click", validateMemberForm);
+    } else {
+        addBtn.addEventListener("click", validateMemberForm);
+    }
+
+    </script>
+</body>
 </html>
