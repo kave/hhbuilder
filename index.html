@@ -65,7 +65,7 @@
     }
 
     function memberHTMLRow(member){
-        return "<li> Age: " + member["age"] + " , Relationship: " 
+        return "<li> Age: " + member["age"] + " , Relationship: "
         + member["relationship"] + " , Smokes: " + member["smokes"];
     }
 
@@ -94,13 +94,7 @@
     }
 
     var form = document.getElementsByTagName('form')[0];
-    if (form.attachEvent) {
-        form.attachEvent("submit", serializeData);
-    } else {
-        form.addEventListener("submit", serializeData);
-    }
-
-    
+    form.addEventListener("submit", serializeData);
 
     // Remove last added member logic
     function removeAddedMember(e){
@@ -118,7 +112,7 @@
         btn.innerHTML = "Remove Added Member";
         btn.id = "removeMember"
 
-        body = document.getElementsByClassName('builder')[0]; 
+        body = document.getElementsByClassName('builder')[0];
         body.appendChild(btn);
     }
 
@@ -177,11 +171,7 @@
     }
 
     var addBtn = document.getElementsByClassName('add')[0];
-    if (addBtn.attachEvent) {
-        addBtn.attachEvent("click", validateMemberForm);
-    } else {
-        addBtn.addEventListener("click", validateMemberForm);
-    }
+    addBtn.addEventListener("click", validateMemberForm);
 
     </script>
 </body>
